@@ -1,5 +1,7 @@
+import 'module-alias/register';
+
 import express from 'express';
-import { connectDB } from '@database';
+import { connectDB } from '@utils/database';
 import { CONSTANTS } from '@config/constants';
 
 connectDB();
