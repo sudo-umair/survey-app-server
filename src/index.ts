@@ -5,6 +5,7 @@ import { connectDB } from '@utils/database';
 import { CONSTANTS } from '@config/constants';
 import { enumeratorRouter } from '@routes/enumerator';
 import { adminRouter } from '@routes/admin';
+import { surveyRouter } from '@routes/survey';
 
 connectDB();
 
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/enumerator', enumeratorRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/survey', surveyRouter);
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);

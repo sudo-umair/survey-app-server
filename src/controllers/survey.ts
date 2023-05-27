@@ -14,6 +14,11 @@ export const createSurvey: RequestHandler<
   ICreateSurveyRequest
 > = async (req, res) => {
   try {
+    if (JSON.stringify(req.body) === '{}') {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Request body is empty',
+      });
+    }
     const {
       surveyId,
       sectionA,
@@ -24,6 +29,21 @@ export const createSurvey: RequestHandler<
       submittedBy,
       token,
     } = req.body;
+
+    if (
+      !surveyId ||
+      JSON.stringify(sectionA) === '{}' ||
+      JSON.stringify(sectionB) === '{}' ||
+      JSON.stringify(sectionC) === '{}' ||
+      JSON.stringify(sectionD) === '{}' ||
+      JSON.stringify(submittedBy) === '{}' ||
+      !submittedAt ||
+      !token
+    ) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+    }
 
     const existingEnumerator = await EnumeratorModel.findOne({
       email: submittedBy.email,

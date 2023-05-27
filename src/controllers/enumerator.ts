@@ -12,6 +12,12 @@ export const createEnumerator: RequestHandler<
   IResponse,
   ICreateEnumeratorRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
+
   try {
     const {
       firstName,
@@ -23,7 +29,24 @@ export const createEnumerator: RequestHandler<
       email,
       address,
       cnic,
-    } = req.body;
+    } = req.body ?? {};
+
+    if (
+      !firstName ||
+      !lastName ||
+      !age ||
+      !enumeratorId ||
+      !mobile ||
+      !password ||
+      !email ||
+      !address ||
+      !cnic
+    ) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+    }
+
     await EnumeratorModel.findOne({ email } || { enumeratorId })
       .then(async (enumerator) => {
         if (enumerator) {
@@ -75,8 +98,18 @@ export const getEnumerator: RequestHandler<
   IResponse,
   IGetEnumeratorRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+    }
     await EnumeratorModel.findOne({ email })
       .then(async (enumerator) => {
         if (enumerator) {
