@@ -45,10 +45,6 @@ const enumeratorSchema = new Schema<
       type: String,
       trim: true,
     },
-    token: {
-      type: String,
-      default: '',
-    },
     age: {
       type: String,
       trim: true,
@@ -58,6 +54,14 @@ const enumeratorSchema = new Schema<
       required: true,
       unique: true,
       trim: true,
+    },
+    isDisabled: {
+      type: Boolean,
+      default: false,
+    },
+    token: {
+      type: String,
+      default: '',
     },
   },
   {

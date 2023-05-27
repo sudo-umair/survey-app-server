@@ -9,6 +9,7 @@ export interface IEnumerator {
   address: string;
   password: string;
   enumeratorId: string;
+  isDisabled: boolean;
   token: string;
 }
 
