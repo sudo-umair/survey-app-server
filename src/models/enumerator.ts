@@ -6,7 +6,7 @@ import {
   IEnumerator,
   IEnumeratorMethods,
   TEnumeratorModel,
-} from '@/types/enumerator';
+} from '@interfaces/enumerator';
 
 const enumeratorSchema = new Schema<
   IEnumerator,
@@ -30,7 +30,7 @@ const enumeratorSchema = new Schema<
       required: true,
       trim: true,
     },
-    phone: {
+    mobile: {
       type: String,
       trim: true,
       unique: true,
@@ -48,6 +48,16 @@ const enumeratorSchema = new Schema<
     token: {
       type: String,
       default: '',
+    },
+    age: {
+      type: String,
+      trim: true,
+    },
+    enumeratorId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
     },
   },
   {
@@ -79,6 +89,7 @@ enumeratorSchema.methods.generateAuthToken = async function () {
 
 enumeratorSchema.methods.verifyAuthToken = async function (token: string) {
   const enumerator = this;
+
   const decoded = jwt.verify(token, CONSTANTS.JWT_KEY as string);
   const { _id } = decoded as { _id: string };
   if (_id === enumerator._id.toString()) {

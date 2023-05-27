@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { CONSTANTS } from '@config/constants';
-import type { IAdmin, IAdminMethods, TAdminModel } from '@/types/admin';
+import type { IAdmin, IAdminMethods, TAdminModel } from '@interfaces/admin';
 
 const adminSchema = new Schema<IAdmin, IAdminMethods, TAdminModel>(
   {

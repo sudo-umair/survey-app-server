@@ -1,11 +1,19 @@
 import { RequestHandler } from 'express';
 import { AdminModel } from '@models/admin';
 import { StatusCodes } from 'http-status-codes';
-import type { IAdmin } from '@/types/admin';
+import {
+  ICreateAdminRequest,
+  IGetEnumeratorRequest,
+  IResponse,
+} from '@interfaces/controllers';
 
-const createAdmin: RequestHandler = async (req, res) => {
+export const createAdmin: RequestHandler<
+  {},
+  IResponse,
+  ICreateAdminRequest
+> = async (req, res) => {
   try {
-    const { name, password, email } = req.body as IAdmin;
+    const { name, password, email } = req.body;
     await AdminModel.findOne({ email })
       .then(async (admin) => {
         if (admin) {
@@ -48,9 +56,13 @@ const createAdmin: RequestHandler = async (req, res) => {
   }
 };
 
-const getAdmin: RequestHandler = async (req, res) => {
+export const getAdmin: RequestHandler<
+  {},
+  IResponse,
+  IGetEnumeratorRequest
+> = async (req, res) => {
   try {
-    const { email, password } = req.body as IAdmin;
+    const { email, password } = req.body;
     await AdminModel.findOne({ email })
       .then((admin) => {
         if (admin) {
@@ -94,71 +106,3 @@ const getAdmin: RequestHandler = async (req, res) => {
     console.error(error);
   }
 };
-
-const updateAdmin: RequestHandler = async (req, res) => {
-  try {
-    const { password, email, oldPassword } = req.body as IAdmin & {
-      oldPassword: string;
-    };
-    await AdminModel.findOne({ email }).then((admin) => {
-      if (admin) {
-        admin.comparePassword(oldPassword).then((isMatch) => {
-          if (isMatch) {
-            admin.email = email;
-            admin.encryptPassword(password);
-            res.status(StatusCodes.OK).json({
-              message: 'Admin updated successfully',
-              admin,
-            });
-          } else {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-              message: 'Incorrect password',
-            });
-          }
-        });
-      } else {
-        res.status(StatusCodes.NOT_FOUND).json({
-          message: 'Admin not found',
-        });
-      }
-    });
-  } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
-    });
-    console.error(error);
-  }
-};
-
-const deleteAdmin: RequestHandler = async (req, res) => {
-  try {
-    const { email, password } = req.body as IAdmin;
-    AdminModel.findOne({ email }).then((admin) => {
-      if (admin) {
-        admin.comparePassword(password).then((isMatch) => {
-          if (isMatch) {
-            admin.deleteOne();
-            res.status(StatusCodes.OK).json({
-              message: 'Admin deleted successfully',
-            });
-          } else {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-              message: 'Incorrect password',
-            });
-          }
-        });
-      } else {
-        res.status(StatusCodes.NOT_FOUND).json({
-          message: 'Admin not found',
-        });
-      }
-    });
-  } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
-    });
-    console.error(error);
-  }
-};
-
-export { createAdmin, getAdmin, updateAdmin, deleteAdmin };

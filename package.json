@@ -35,12 +35,12 @@
     "mongoose": "^7.1.2"
   },
   "_moduleAliases": {
+    "@config": "dist/config",
     "@controllers": "dist/controllers",
+    "@interfaces": "dist/interfaces",
     "@models": "dist/models",
     "@routes": "dist/routes",
     "@services": "dist/services",
-    "@utils": "dist/utils",
-    "@types": "dist/types",
-    "@config": "dist/config"
+    "@utils": "dist/utils"
   }
 }
