@@ -19,6 +19,7 @@ export const createSurvey: RequestHandler<
         message: 'Request body is empty',
       });
     }
+
     const {
       surveyId,
       sectionA,
@@ -56,30 +57,35 @@ export const createSurvey: RequestHandler<
     } else {
       await existingEnumerator.verifyAuthToken(token).then(async (isMatch) => {
         if (isMatch) {
-          const survey = new SurveyModel({
-            surveyId,
-            sectionA,
-            sectionB,
-            sectionC,
-            sectionD,
-            submittedAt,
-            submittedBy,
-          });
-
-          await survey
-            .save()
-            .then((survey) => {
-              res.status(StatusCodes.CREATED).json({
-                message: 'Survey created',
-                survey,
-              });
-            })
-            .catch((error) => {
-              res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: 'Something went wrong',
-              });
-              console.error(error);
+          if (existingEnumerator.isDisabled) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({
+              message: 'Enumerator is disabled',
             });
+          } else {
+            const survey = new SurveyModel({
+              surveyId,
+              sectionA,
+              sectionB,
+              sectionC,
+              sectionD,
+              submittedAt,
+              submittedBy,
+            });
+            await survey
+              .save()
+              .then((survey) => {
+                res.status(StatusCodes.CREATED).json({
+                  message: 'Survey created',
+                  survey,
+                });
+              })
+              .catch((error) => {
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                  message: 'Something went wrong',
+                });
+                console.error(error);
+              });
+          }
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
             message: 'Invalid token',
