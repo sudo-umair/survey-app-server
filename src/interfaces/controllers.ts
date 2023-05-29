@@ -22,20 +22,36 @@ export interface ICreateEnumeratorRequest {
   enumeratorId: string;
 }
 
-export interface IGetEnumeratorRequest {
-  email: string;
-  password: string;
-}
-
 export interface ICreateAdminRequest {
   name: string;
   email: string;
   password: string;
 }
 
-export interface IGetEnumeratorRequest {
+export interface IGetUserRequest {
   email: string;
   password: string;
+}
+
+export interface IResumeSessionRequest {
+  email: string;
+  token: string;
+}
+
+export interface IListEnumeratorsRequest {
+  email: string;
+  token: string;
+}
+
+export interface IToggleEnumeratorStatusRequest {
+  email: string;
+  token: string;
+  enumeratorEmail: string;
+}
+
+export interface IIListSurveysRequest {
+  email: string;
+  token: string;
 }
 
 export interface ICreateSurveyRequest {

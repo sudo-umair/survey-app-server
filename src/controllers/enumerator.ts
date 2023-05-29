@@ -3,8 +3,9 @@ import { EnumeratorModel } from '@models/enumerator';
 import { StatusCodes } from 'http-status-codes';
 import {
   ICreateEnumeratorRequest,
-  IGetEnumeratorRequest,
+  IGetUserRequest,
   IResponse,
+  IResumeSessionRequest,
 } from '@interfaces/controllers';
 
 export const createEnumerator: RequestHandler<
@@ -96,7 +97,7 @@ export const createEnumerator: RequestHandler<
 export const getEnumerator: RequestHandler<
   {},
   IResponse,
-  IGetEnumeratorRequest
+  IGetUserRequest
 > = async (req, res) => {
   if (JSON.stringify(req.body) === '{}') {
     res.status(StatusCodes.BAD_REQUEST).json({
@@ -146,6 +147,49 @@ export const getEnumerator: RequestHandler<
         });
         console.error(error);
       });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Something went wrong',
+    });
+    console.error(error);
+  }
+};
+
+export const resumeSession: RequestHandler<
+  {},
+  IResponse,
+  IResumeSessionRequest
+> = async (req, res) => {
+  try {
+    const { email, token } = req.body;
+
+    if (!email || !token) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+    }
+
+    const existingEnumerator = await EnumeratorModel.findOne({
+      email: email,
+    });
+
+    if (!existingEnumerator) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Enumerator not found',
+      });
+    } else {
+      await existingEnumerator.verifyAuthToken(token).then((isMatch) => {
+        if (isMatch) {
+          res.status(StatusCodes.OK).json({
+            message: 'Session resumed',
+          });
+        } else {
+          res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Invalid token',
+          });
+        }
+      });
+    }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Something went wrong',

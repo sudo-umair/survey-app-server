@@ -10,7 +10,7 @@ export interface IAdmin {
 export interface IAdminMethods {
   encryptPassword: (password: string) => Promise<void>;
   comparePassword: (password: string) => Promise<boolean>;
-  generateAuthToken: () => Promise<string>;
+  generateAuthToken: () => void;
   verifyAuthToken: (token: string) => Promise<boolean>;
 }
 
