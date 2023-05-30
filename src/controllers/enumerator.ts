@@ -160,6 +160,11 @@ export const resumeSession: RequestHandler<
   IResponse,
   IResumeSessionRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, token } = req.body;
 

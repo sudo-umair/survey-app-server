@@ -20,6 +20,11 @@ export const createAdmin: RequestHandler<
   IResponse,
   ICreateAdminRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { name, password, email } = req.body;
     await AdminModel.findOne({ email })
@@ -68,6 +73,11 @@ export const getAdmin: RequestHandler<{}, IResponse, IGetUserRequest> = async (
   req,
   res
 ) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, password } = req.body;
     await AdminModel.findOne({ email })
@@ -119,6 +129,11 @@ export const resumeSession: RequestHandler<
   IResponse,
   IResumeSessionRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, token } = req.body;
 
@@ -162,6 +177,11 @@ export const listEnumerators: RequestHandler<
   IResponse,
   IListEnumeratorsRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, token } = req.body;
     if (!email || !token) {
@@ -198,6 +218,11 @@ export const toggleEnumeratorStatus: RequestHandler<
   IResponse,
   IToggleEnumeratorStatusRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, token, enumeratorEmail } = req.body;
     if (!email || !token || !enumeratorEmail) {
@@ -244,6 +269,11 @@ export const listSurveys: RequestHandler<
   IResponse,
   IIListSurveysRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, token } = req.body;
     if (!email || !token) {
@@ -280,6 +310,11 @@ export const getStats: RequestHandler<
   IResponse,
   IIGetStatsRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, token } = req.body;
     if (!email || !token) {

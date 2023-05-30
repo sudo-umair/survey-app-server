@@ -175,6 +175,11 @@ export const getSurvey: RequestHandler<
   IResponse,
   IGetSurveyRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+  }
   try {
     const { email, surveyId, token } = req.body;
     const existingEnumerator = await EnumeratorModel.findOne({
