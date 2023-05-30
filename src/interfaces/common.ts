@@ -33,3 +33,13 @@ export interface IQuestion {
   keyboardType?: string;
   maxLength?: number;
 }
+
+export interface ISurveyPayload {
+  surveyId: string;
+  sectionA: IQuestion[];
+  sectionB: IQuestion[];
+  sectionC: IQuestion[];
+  sectionD: IQuestion[];
+  submittedBy: ISubmittedBy;
+  submittedAt: string;
+}
