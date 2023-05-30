@@ -1,4 +1,5 @@
-import { IQuestion, ISubmittedBy, ISurveyPayload } from './common';
+import { IQuestion, ISubmittedBy } from './common';
+import { ISurvey } from './survey';
 
 export interface IResponse {
   message: string;
@@ -54,14 +55,14 @@ export interface IIListSurveysRequest {
   token: string;
 }
 
-export interface ICreateSurveyRequest extends ISurveyPayload {
+export interface ICreateSurveyRequest extends ISurvey {
   token: string;
 }
 
 export interface ISyncSurveysRequest {
   email: string;
   token: string;
-  surveys: ISurveyPayload[];
+  surveys: ISurvey[];
 }
 
 export interface IGetSurveyRequest {

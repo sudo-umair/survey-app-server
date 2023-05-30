@@ -143,7 +143,7 @@ export const syncSurveys: RequestHandler<
             await SurveyModel.insertMany(surveys)
               .then((surveys) => {
                 res.status(StatusCodes.CREATED).json({
-                  message: 'Surveys created',
+                  message: 'Surveys synced',
                   surveys,
                 });
               })
