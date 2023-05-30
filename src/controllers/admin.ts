@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
 import { AdminModel } from '@models/admin';
-import { EnumeratorModel } from '@models/enumerator';
 import { StatusCodes } from 'http-status-codes';
 import {
   ICreateAdminRequest,
   IGetUserRequest,
+  IIGetStatsRequest,
   IIListSurveysRequest,
   IListEnumeratorsRequest,
   IResponse,
@@ -12,6 +12,8 @@ import {
   IToggleEnumeratorStatusRequest,
 } from '@interfaces/controllers';
 import { SurveyModel } from '@models/survey';
+import { EnumeratorModel } from '@models/enumerator';
+import { SURVEY_COMPONENTS } from '@interfaces/common';
 
 export const createAdmin: RequestHandler<
   {},
@@ -263,6 +265,64 @@ export const listSurveys: RequestHandler<
       res.status(StatusCodes.OK).json({
         message: 'Surveys found',
         surveys,
+      });
+    }
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Something went wrong',
+    });
+    console.error(error);
+  }
+};
+
+export const getStats: RequestHandler<
+  {},
+  IResponse,
+  IIGetStatsRequest
+> = async (req, res) => {
+  try {
+    const { email, token } = req.body;
+    if (!email || !token) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+    }
+
+    const existingAdmin = await AdminModel.findOne({
+      email: email,
+    });
+
+    if (!existingAdmin) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Admin not found',
+      });
+    } else {
+      const STATS = {
+        totalSurveys: 0,
+        totalEnumerators: 0,
+        totalComponentASurveys: 0,
+        totalComponentBSurveys: 0,
+      };
+
+      const surveys = await SurveyModel.find({});
+      STATS.totalSurveys = surveys.length;
+
+      const enumerators = await EnumeratorModel.find({});
+      STATS.totalEnumerators = enumerators.length;
+
+      const componentASurveys = await SurveyModel.find({
+        surveyId: SURVEY_COMPONENTS.A,
+      });
+      STATS.totalComponentASurveys = componentASurveys.length;
+
+      const componentBSurveys = await SurveyModel.find({
+        surveyId: SURVEY_COMPONENTS.B,
+      });
+      STATS.totalComponentBSurveys = componentBSurveys.length;
+
+      res.status(StatusCodes.OK).json({
+        message: 'Stats found',
+        stats: STATS,
       });
     }
   } catch (error) {

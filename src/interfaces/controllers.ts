@@ -70,3 +70,8 @@ export interface IGetSurveyRequest {
   token: string;
   email: string;
 }
+
+export interface IIGetStatsRequest {
+  email: string;
+  token: string;
+}
