@@ -79,7 +79,6 @@ enumeratorSchema.methods.encryptPassword = async function (password: string) {
 
 enumeratorSchema.methods.comparePassword = async function (password: string) {
   const enumerator = this;
-  enumerator.save();
   const isMatch = await bcrypt.compare(password, enumerator.password);
   return isMatch;
 };

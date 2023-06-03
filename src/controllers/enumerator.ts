@@ -17,8 +17,8 @@ export const createEnumerator: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
-
   try {
     const {
       firstName,
@@ -46,13 +46,15 @@ export const createEnumerator: RequestHandler<
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
-
-    await EnumeratorModel.findOne({ email } || { enumeratorId })
+    await EnumeratorModel.findOne(
+      { email } || { enumeratorId } || { mobile } || { cnic }
+    )
       .then(async (enumerator) => {
         if (enumerator) {
           res.status(StatusCodes.CONFLICT).json({
-            message: 'Enumerator already exists',
+            message: 'Enumerator already exists. Please login instead',
           });
         } else {
           const enumerator = new EnumeratorModel({
@@ -103,6 +105,7 @@ export const getEnumerator: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, password } = req.body;
@@ -110,6 +113,7 @@ export const getEnumerator: RequestHandler<
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
     await EnumeratorModel.findOne({ email })
       .then(async (enumerator) => {
@@ -164,20 +168,19 @@ export const resumeSession: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, token } = req.body;
-
     if (!email || !token) {
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
-
     const existingEnumerator = await EnumeratorModel.findOne({
       email: email,
     });
-
     if (!existingEnumerator) {
       res.status(StatusCodes.NOT_FOUND).json({
         message: 'Enumerator not found',
