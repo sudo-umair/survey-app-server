@@ -176,9 +176,17 @@ export const getSurvey: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, surveyId, token } = req.body;
+    if (!email || !surveyId || !token) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+      return;
+    }
+
     const existingEnumerator = await EnumeratorModel.findOne({
       email: email,
     });
