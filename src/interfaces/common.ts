@@ -4,7 +4,6 @@ export enum SURVEY_COMPONENTS {
 }
 
 export type ISubmittedBy = {
-  id: string;
   name: string;
   age: string;
   email: string;

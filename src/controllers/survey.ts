@@ -14,13 +14,13 @@ export const createSurvey: RequestHandler<
   IResponse,
   ICreateSurveyRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+    return;
+  }
   try {
-    if (JSON.stringify(req.body) === '{}') {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Request body is empty',
-      });
-    }
-
     const {
       surveyId,
       sectionA,
@@ -45,6 +45,7 @@ export const createSurvey: RequestHandler<
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
 
     const existingEnumerator = await EnumeratorModel.findOne({
@@ -76,7 +77,7 @@ export const createSurvey: RequestHandler<
               .save()
               .then((survey) => {
                 res.status(StatusCodes.CREATED).json({
-                  message: 'Survey created',
+                  message: 'Survey submitted successfully',
                   survey,
                 });
               })
@@ -107,27 +108,23 @@ export const syncSurveys: RequestHandler<
   IResponse,
   ISyncSurveysRequest
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+    return;
+  }
   try {
-    if (JSON.stringify(req.body) === '{}') {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Request body is empty',
-      });
-    }
-
     const { email, token, surveys } = req.body;
-
     if (!email || !token || !surveys) {
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
-
       return;
     }
-
     const existingEnumerator = await EnumeratorModel.findOne({
       email: email,
     });
-
     if (!existingEnumerator) {
       res.status(StatusCodes.NOT_FOUND).json({
         message: 'Enumerator not found',
