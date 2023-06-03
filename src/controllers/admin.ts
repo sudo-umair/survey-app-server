@@ -24,9 +24,16 @@ export const createAdmin: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { name, password, email } = req.body;
+    if (!name || !password || !email) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+      return;
+    }
     await AdminModel.findOne({ email })
       .then(async (admin) => {
         if (admin) {
@@ -39,10 +46,9 @@ export const createAdmin: RequestHandler<
             email,
             password,
           });
-          admin.encryptPassword(password);
-          await admin
-            .save()
-            .then((admin) => {
+          admin
+            .encryptPassword(password)
+            .then(() => {
               res.status(StatusCodes.CREATED).json({
                 message: 'Admin created successfully',
               });
@@ -77,9 +83,17 @@ export const getAdmin: RequestHandler<{}, IResponse, IGetUserRequest> = async (
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+      return;
+    }
+
     await AdminModel.findOne({ email })
       .then((admin) => {
         if (admin) {
@@ -89,7 +103,7 @@ export const getAdmin: RequestHandler<{}, IResponse, IGetUserRequest> = async (
               if (isMatch) {
                 admin.generateAuthToken();
                 res.status(StatusCodes.OK).json({
-                  message: 'Admin found',
+                  message: 'Admin logged in successfully',
                   admin,
                 });
               } else {

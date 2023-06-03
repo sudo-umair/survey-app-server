@@ -42,7 +42,6 @@ adminSchema.methods.encryptPassword = async function (password: string) {
 
 adminSchema.methods.comparePassword = async function (password: string) {
   const admin = this;
-  admin.save();
   const isMatch = await bcrypt.compare(password, admin.password);
   return isMatch;
 };

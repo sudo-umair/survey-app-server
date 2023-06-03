@@ -69,7 +69,7 @@ export const createEnumerator: RequestHandler<
           });
           await enumerator
             .encryptPassword(password)
-            .then((enumerator) => {
+            .then(() => {
               res.status(StatusCodes.CREATED).json({
                 message: 'Enumerator created successfully',
               });
@@ -124,7 +124,7 @@ export const getEnumerator: RequestHandler<
               if (isMatch) {
                 enumerator.generateAuthToken();
                 res.status(StatusCodes.OK).json({
-                  message: 'Enumerator found',
+                  message: 'Enumerator logged in successfully',
                   enumerator,
                 });
               } else {
