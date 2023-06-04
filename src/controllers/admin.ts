@@ -361,18 +361,18 @@ export const getStats: RequestHandler<
       const surveys = await SurveyModel.find({});
       STATS.totalSurveys = surveys.length;
 
-      const enumerators = await EnumeratorModel.find({});
-      STATS.totalEnumerators = enumerators.length;
-
-      const componentASurveys = await SurveyModel.find({
-        surveyId: SURVEY_COMPONENTS.A,
-      });
+      const componentASurveys = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.A
+      );
       STATS.totalComponentASurveys = componentASurveys.length;
 
-      const componentBSurveys = await SurveyModel.find({
-        surveyId: SURVEY_COMPONENTS.B,
-      });
+      const componentBSurveys = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.B
+      );
       STATS.totalComponentBSurveys = componentBSurveys.length;
+
+      const enumerators = await EnumeratorModel.find({});
+      STATS.totalEnumerators = enumerators.length;
 
       res.status(StatusCodes.OK).json({
         message: 'Stats found',
