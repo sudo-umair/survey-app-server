@@ -189,7 +189,7 @@ export const resumeSession: RequestHandler<
       await existingEnumerator.verifyAuthToken(token).then((isMatch) => {
         if (isMatch) {
           res.status(StatusCodes.OK).json({
-            message: 'Session resumed',
+            message: `Welcome back ${existingEnumerator.name}!`,
             enumerator: existingEnumerator,
           });
         } else {

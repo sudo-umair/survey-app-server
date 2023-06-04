@@ -168,7 +168,7 @@ export const resumeSession: RequestHandler<
       await existingAdmin.verifyAuthToken(token).then((isMatch) => {
         if (isMatch) {
           res.status(StatusCodes.OK).json({
-            message: 'Session resumed',
+            message: `Admin ${existingAdmin.name} logged in successfully`,
             admin: existingAdmin,
           });
         } else {
