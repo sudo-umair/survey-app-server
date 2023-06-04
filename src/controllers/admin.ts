@@ -351,32 +351,26 @@ export const getStats: RequestHandler<
         message: 'Admin not found',
       });
     } else {
-      const STATS = {
-        totalSurveys: 0,
-        totalEnumerators: 0,
-        totalComponentASurveys: 0,
-        totalComponentBSurveys: 0,
-      };
-
       const surveys = await SurveyModel.find({});
-      STATS.totalSurveys = surveys.length;
-
       const componentASurveys = surveys.filter(
         (survey) => survey.surveyId === SURVEY_COMPONENTS.A
       );
-      STATS.totalComponentASurveys = componentASurveys.length;
-
+      const totalComponentASurveys = componentASurveys.length;
       const componentBSurveys = surveys.filter(
         (survey) => survey.surveyId === SURVEY_COMPONENTS.B
       );
-      STATS.totalComponentBSurveys = componentBSurveys.length;
-
+      const totalComponentBSurveys = componentBSurveys.length;
       const enumerators = await EnumeratorModel.find({});
-      STATS.totalEnumerators = enumerators.length;
+      const totalEnumerators = enumerators.length;
 
       res.status(StatusCodes.OK).json({
         message: 'Stats found',
-        stats: STATS,
+        stats: {
+          totalSurveys: surveys.length,
+          totalEnumerators,
+          totalComponentASurveys,
+          totalComponentBSurveys,
+        },
       });
     }
   } catch (error) {
