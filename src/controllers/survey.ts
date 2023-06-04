@@ -61,7 +61,7 @@ export const createSurvey: RequestHandler<
         if (isMatch) {
           if (existingEnumerator.isDisabled) {
             return res.status(StatusCodes.UNAUTHORIZED).json({
-              message: 'Enumerator is disabled',
+              message: 'Enumerator is disabled, cannot submit survey',
             });
           } else {
             const survey = new SurveyModel({
@@ -134,7 +134,7 @@ export const syncSurveys: RequestHandler<
         if (isMatch) {
           if (existingEnumerator.isDisabled) {
             return res.status(StatusCodes.UNAUTHORIZED).json({
-              message: 'Enumerator is disabled',
+              message: 'Enumerator is disabled, cannot sync surveys',
             });
           } else {
             await SurveyModel.insertMany(surveys)
