@@ -14,7 +14,7 @@ const adminRouter = Router();
 adminRouter.post('/sign-up', createAdmin);
 adminRouter.post('/sign-in', getAdmin);
 adminRouter.post('/surveys', listSurveys);
-adminRouter.post('/enumerators', listEnumerators);
+adminRouter.post('/list-enumerators', listEnumerators);
 adminRouter.post('/resume-session', resumeSession);
 adminRouter.post('/toggle-enumerator-status', toggleEnumeratorStatus);
 adminRouter.post('/stats', getStats);

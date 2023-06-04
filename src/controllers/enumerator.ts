@@ -190,6 +190,7 @@ export const resumeSession: RequestHandler<
         if (isMatch) {
           res.status(StatusCodes.OK).json({
             message: 'Session resumed',
+            enumerator: existingEnumerator,
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({

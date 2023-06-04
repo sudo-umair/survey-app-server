@@ -147,20 +147,19 @@ export const resumeSession: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, token } = req.body;
-
     if (!email || !token) {
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
-
     const existingAdmin = await AdminModel.findOne({
       email: email,
     });
-
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
         message: 'Admin not found',
@@ -170,6 +169,7 @@ export const resumeSession: RequestHandler<
         if (isMatch) {
           res.status(StatusCodes.OK).json({
             message: 'Session resumed',
+            admin: existingAdmin,
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
@@ -195,6 +195,7 @@ export const listEnumerators: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, token } = req.body;
@@ -202,6 +203,7 @@ export const listEnumerators: RequestHandler<
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
 
     const existingAdmin = await AdminModel.findOne({
@@ -236,6 +238,7 @@ export const toggleEnumeratorStatus: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, token, enumeratorEmail } = req.body;
@@ -243,12 +246,11 @@ export const toggleEnumeratorStatus: RequestHandler<
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
-
     const existingAdmin = await AdminModel.findOne({
       email: email,
     });
-
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
         message: 'Admin not found',
@@ -266,7 +268,10 @@ export const toggleEnumeratorStatus: RequestHandler<
         existingEnumerator.isDisabled = !existingEnumerator.isDisabled;
         await existingEnumerator.save();
         res.status(StatusCodes.OK).json({
-          message: 'Enumerator status updated',
+          message: `Enumerator ${
+            existingEnumerator.isDisabled ? 'disabled' : 'enabled'
+          } successfully`,
+          enumerator: existingEnumerator,
         });
       }
     }
@@ -287,6 +292,7 @@ export const listSurveys: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, token } = req.body;
@@ -294,12 +300,11 @@ export const listSurveys: RequestHandler<
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
-
     const existingAdmin = await AdminModel.findOne({
       email: email,
     });
-
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
         message: 'Admin not found',
@@ -328,6 +333,7 @@ export const getStats: RequestHandler<
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
     });
+    return;
   }
   try {
     const { email, token } = req.body;
@@ -335,12 +341,11 @@ export const getStats: RequestHandler<
       res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Missing required fields',
       });
+      return;
     }
-
     const existingAdmin = await AdminModel.findOne({
       email: email,
     });
-
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
         message: 'Admin not found',
