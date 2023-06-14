@@ -1,6 +1,11 @@
 export enum SURVEY_COMPONENTS {
-  A = 'High Efficiency irrigation system',
-  B = 'Kitchen Gardening',
+  S1 = 'WATERCOURSE BENEFICIARIES (WCB)',
+  S2 = 'HIGH EFFICIENCY IRRIGATION SYSTEM (HEIS)',
+  S3 = 'KITCHEN GARDENING (KG)',
+  S4 = 'LASER LEVELLER (PLL)',
+  S5 = 'DEEP RIPPING (DR)',
+  S6 = 'FARMERS FIELD SCHOOL (FFS)',
+  S7 = 'REHABILITATION OF FLOOD DAMAGES (RFD)',
 }
 
 export type ISubmittedBy = {

@@ -352,14 +352,28 @@ export const getStats: RequestHandler<
       });
     } else {
       const surveys = await SurveyModel.find({});
-      const componentASurveys = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.A
-      );
-      const totalComponentASurveys = componentASurveys.length;
-      const componentBSurveys = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.B
-      );
-      const totalComponentBSurveys = componentBSurveys.length;
+      const surveys1 = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.S1
+      ).length;
+      const surveys2 = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.S2
+      ).length;
+      const surveys3 = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.S3
+      ).length;
+      const surveys4 = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.S4
+      ).length;
+      const surveys5 = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.S5
+      ).length;
+      const surveys6 = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.S6
+      ).length;
+      const surveys7 = surveys.filter(
+        (survey) => survey.surveyId === SURVEY_COMPONENTS.S7
+      ).length;
+
       const enumerators = await EnumeratorModel.find({});
       const totalEnumerators = enumerators.length;
 
@@ -368,8 +382,13 @@ export const getStats: RequestHandler<
         stats: {
           totalSurveys: surveys.length,
           totalEnumerators,
-          totalComponentASurveys,
-          totalComponentBSurveys,
+          surveys1,
+          surveys2,
+          surveys3,
+          surveys4,
+          surveys5,
+          surveys6,
+          surveys7,
         },
       });
     }

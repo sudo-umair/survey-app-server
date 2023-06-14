@@ -1,4 +1,3 @@
-import { IQuestion, ISubmittedBy } from './common';
 import { ISurvey } from './survey';
 
 export interface IResponse {
