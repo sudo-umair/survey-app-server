@@ -1,3 +1,4 @@
+import { SURVEY_COMPONENTS } from './common';
 import { ISurvey } from './survey';
 
 export interface IResponse {
@@ -49,9 +50,15 @@ export interface IToggleEnumeratorStatusRequest {
   enumeratorEmail: string;
 }
 
-export interface IIListSurveysRequest {
+export interface IListSurveysRequest {
   email: string;
   token: string;
+}
+
+export interface IListSurveysRequestBySurveyId {
+  email: string;
+  token: string;
+  surveyId: SURVEY_COMPONENTS;
 }
 
 export interface ICreateSurveyRequest extends ISurvey {
@@ -70,7 +77,13 @@ export interface IGetSurveyRequest {
   email: string;
 }
 
-export interface IIGetStatsRequest {
+export interface IGetStatsRequest {
   email: string;
   token: string;
+}
+
+export interface IDeleteSurveyRequest {
+  email: string;
+  token: string;
+  id: string;
 }
