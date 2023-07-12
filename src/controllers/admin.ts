@@ -4,12 +4,13 @@ import { StatusCodes } from 'http-status-codes';
 import {
   ICreateAdminRequest,
   IGetUserRequest,
-  IIGetStatsRequest,
-  IIListSurveysRequest,
+  IGetStatsRequest,
+  IListSurveysRequest,
   IListEnumeratorsRequest,
   IResponse,
   IResumeSessionRequest,
   IToggleEnumeratorStatusRequest,
+  IListSurveysRequestBySurveyId,
 } from '@interfaces/controllers';
 import { SurveyModel } from '@models/survey';
 import { EnumeratorModel } from '@models/enumerator';
@@ -205,7 +206,6 @@ export const listEnumerators: RequestHandler<
       });
       return;
     }
-
     const existingAdmin = await AdminModel.findOne({
       email: email,
     });
@@ -215,10 +215,18 @@ export const listEnumerators: RequestHandler<
         message: 'Admin not found',
       });
     } else {
-      const enumerators = await EnumeratorModel.find({});
-      res.status(StatusCodes.OK).json({
-        message: 'Enumerators found',
-        enumerators,
+      await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
+        if (isMatch) {
+          const enumerators = await EnumeratorModel.find({});
+          res.status(StatusCodes.OK).json({
+            message: 'Enumerators found',
+            enumerators,
+          });
+        } else {
+          res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Invalid token',
+          });
+        }
       });
     }
   } catch (error) {
@@ -256,24 +264,32 @@ export const toggleEnumeratorStatus: RequestHandler<
         message: 'Admin not found',
       });
     } else {
-      const existingEnumerator = await EnumeratorModel.findOne({
-        email: enumeratorEmail,
-      });
+      await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
+        if (isMatch) {
+          const existingEnumerator = await EnumeratorModel.findOne({
+            email: enumeratorEmail,
+          });
 
-      if (!existingEnumerator) {
-        res.status(StatusCodes.NOT_FOUND).json({
-          message: 'Enumerator not found',
-        });
-      } else {
-        existingEnumerator.isDisabled = !existingEnumerator.isDisabled;
-        await existingEnumerator.save();
-        res.status(StatusCodes.OK).json({
-          message: `Enumerator ${
-            existingEnumerator.isDisabled ? 'disabled' : 'enabled'
-          } successfully`,
-          enumerator: existingEnumerator,
-        });
-      }
+          if (!existingEnumerator) {
+            res.status(StatusCodes.NOT_FOUND).json({
+              message: 'Enumerator not found',
+            });
+          } else {
+            existingEnumerator.isDisabled = !existingEnumerator.isDisabled;
+            await existingEnumerator.save();
+            res.status(StatusCodes.OK).json({
+              message: `Enumerator ${
+                existingEnumerator.isDisabled ? 'disabled' : 'enabled'
+              } successfully`,
+              enumerator: existingEnumerator,
+            });
+          }
+        } else {
+          res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Invalid token',
+          });
+        }
+      });
     }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -286,7 +302,7 @@ export const toggleEnumeratorStatus: RequestHandler<
 export const listSurveys: RequestHandler<
   {},
   IResponse,
-  IIListSurveysRequest
+  IListSurveysRequest
 > = async (req, res) => {
   if (JSON.stringify(req.body) === '{}') {
     res.status(StatusCodes.BAD_REQUEST).json({
@@ -310,10 +326,18 @@ export const listSurveys: RequestHandler<
         message: 'Admin not found',
       });
     } else {
-      const surveys = await SurveyModel.find({});
-      res.status(StatusCodes.OK).json({
-        message: 'Surveys found',
-        surveys,
+      await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
+        if (isMatch) {
+          const surveys = await SurveyModel.find({});
+          res.status(StatusCodes.OK).json({
+            message: 'Surveys found',
+            surveys,
+          });
+        } else {
+          res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Invalid token',
+          });
+        }
       });
     }
   } catch (error) {
@@ -324,11 +348,58 @@ export const listSurveys: RequestHandler<
   }
 };
 
-export const getStats: RequestHandler<
+export const listSurveysBySurveyId: RequestHandler<
   {},
   IResponse,
-  IIGetStatsRequest
+  IListSurveysRequestBySurveyId
 > = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+    return;
+  }
+  try {
+    const { surveyId, email, token } = req.body;
+    if (!email || !token || !surveyId) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+      return;
+    }
+    const existingAdmin = await AdminModel.findOne({
+      email: email,
+    });
+    if (!existingAdmin) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Admin not found',
+      });
+    } else {
+      await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
+        if (isMatch) {
+          const surveys = await SurveyModel.find({ surveyId });
+          res.status(StatusCodes.OK).json({
+            message: 'Surveys found',
+            surveys,
+          });
+        } else {
+          res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Invalid token',
+          });
+        }
+      });
+    }
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Something went wrong',
+    });
+  }
+};
+
+export const getStats: RequestHandler<{}, IResponse, IGetStatsRequest> = async (
+  req,
+  res
+) => {
   if (JSON.stringify(req.body) === '{}') {
     res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Request body is empty',
@@ -351,45 +422,53 @@ export const getStats: RequestHandler<
         message: 'Admin not found',
       });
     } else {
-      const surveys = await SurveyModel.find({});
-      const surveys1 = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.S1
-      ).length;
-      const surveys2 = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.S2
-      ).length;
-      const surveys3 = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.S3
-      ).length;
-      const surveys4 = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.S4
-      ).length;
-      const surveys5 = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.S5
-      ).length;
-      const surveys6 = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.S6
-      ).length;
-      const surveys7 = surveys.filter(
-        (survey) => survey.surveyId === SURVEY_COMPONENTS.S7
-      ).length;
+      await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
+        if (isMatch) {
+          const surveys = await SurveyModel.find({});
+          const surveys1 = surveys.filter(
+            (survey) => survey.surveyId === SURVEY_COMPONENTS.S1
+          ).length;
+          const surveys2 = surveys.filter(
+            (survey) => survey.surveyId === SURVEY_COMPONENTS.S2
+          ).length;
+          const surveys3 = surveys.filter(
+            (survey) => survey.surveyId === SURVEY_COMPONENTS.S3
+          ).length;
+          const surveys4 = surveys.filter(
+            (survey) => survey.surveyId === SURVEY_COMPONENTS.S4
+          ).length;
+          const surveys5 = surveys.filter(
+            (survey) => survey.surveyId === SURVEY_COMPONENTS.S5
+          ).length;
+          const surveys6 = surveys.filter(
+            (survey) => survey.surveyId === SURVEY_COMPONENTS.S6
+          ).length;
+          const surveys7 = surveys.filter(
+            (survey) => survey.surveyId === SURVEY_COMPONENTS.S7
+          ).length;
 
-      const enumerators = await EnumeratorModel.find({});
-      const totalEnumerators = enumerators.length;
+          const enumerators = await EnumeratorModel.find({});
+          const totalEnumerators = enumerators.length;
 
-      res.status(StatusCodes.OK).json({
-        message: 'Stats found',
-        stats: {
-          totalSurveys: surveys.length,
-          totalEnumerators,
-          surveys1,
-          surveys2,
-          surveys3,
-          surveys4,
-          surveys5,
-          surveys6,
-          surveys7,
-        },
+          res.status(StatusCodes.OK).json({
+            message: 'Stats found',
+            stats: {
+              totalSurveys: surveys.length,
+              totalEnumerators,
+              surveys1,
+              surveys2,
+              surveys3,
+              surveys4,
+              surveys5,
+              surveys6,
+              surveys7,
+            },
+          });
+        } else {
+          res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Invalid token',
+          });
+        }
       });
     }
   } catch (error) {

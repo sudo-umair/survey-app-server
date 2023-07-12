@@ -4,6 +4,7 @@ import { EnumeratorModel } from '@models/enumerator';
 import { StatusCodes } from 'http-status-codes';
 import {
   ICreateSurveyRequest,
+  IDeleteSurveyRequest,
   IGetSurveyRequest,
   IResponse,
   ISyncSurveysRequest,
@@ -186,7 +187,6 @@ export const getSurvey: RequestHandler<
       });
       return;
     }
-
     const existingEnumerator = await EnumeratorModel.findOne({
       email: email,
     });
@@ -202,6 +202,61 @@ export const getSurvey: RequestHandler<
               res.status(StatusCodes.OK).json({
                 message: 'Survey found',
                 survey,
+              });
+            } else {
+              res.status(StatusCodes.NOT_FOUND).json({
+                message: 'Survey not found',
+              });
+            }
+          });
+        } else {
+          res.status(StatusCodes.UNAUTHORIZED).json({
+            message: 'Invalid token',
+          });
+        }
+      });
+    }
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Something went wrong',
+    });
+    console.error(error);
+  }
+};
+
+export const deleteSurvey: RequestHandler<
+  {},
+  IResponse,
+  IDeleteSurveyRequest
+> = async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Request body is empty',
+    });
+    return;
+  }
+  try {
+    const { email, token, id } = req.body;
+    if (!email || !token || !id) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Missing required fields',
+      });
+      return;
+    }
+    const existingEnumerator = await EnumeratorModel.findOne({
+      email: email,
+    });
+    if (!existingEnumerator) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Enumerator not found',
+      });
+    } else {
+      await existingEnumerator.verifyAuthToken(token).then(async (isMatch) => {
+        if (isMatch) {
+          await SurveyModel.findByIdAndDelete(id).then((survey) => {
+            if (survey) {
+              res.status(StatusCodes.OK).json({
+                message: 'Survey deleted',
               });
             } else {
               res.status(StatusCodes.NOT_FOUND).json({
