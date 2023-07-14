@@ -331,7 +331,7 @@ export const listSurveys: RequestHandler<
           const surveys = await SurveyModel.find({});
           res.status(StatusCodes.OK).json({
             message: 'Surveys found',
-            surveys,
+            surveys: [],
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
