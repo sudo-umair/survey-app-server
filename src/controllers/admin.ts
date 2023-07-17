@@ -1,29 +1,30 @@
-import { RequestHandler } from 'express';
-import { AdminModel } from '@models/admin';
-import { StatusCodes } from 'http-status-codes';
 import {
   ICreateAdminRequest,
-  IGetUserRequest,
   IGetStatsRequest,
-  IListSurveysRequest,
+  IGetUserRequest,
   IListEnumeratorsRequest,
+  IListSurveysRequest,
+  IListSurveysRequestBySurveyId,
   IResponse,
   IResumeSessionRequest,
   IToggleEnumeratorStatusRequest,
-  IListSurveysRequestBySurveyId,
-} from '@interfaces/controllers';
-import { SurveyModel } from '@models/survey';
-import { EnumeratorModel } from '@models/enumerator';
-import { SURVEY_COMPONENTS } from '@interfaces/common';
+} from "@interfaces/controllers";
+
+import { AdminModel } from "@models/admin";
+import { EnumeratorModel } from "@models/enumerator";
+import { RequestHandler } from "express";
+import { SURVEY_COMPONENTS } from "@interfaces/common";
+import { StatusCodes } from "http-status-codes";
+import { SurveyModel } from "@models/survey";
 
 export const createAdmin: RequestHandler<
   {},
   IResponse,
   ICreateAdminRequest
 > = async (req, res) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -31,7 +32,7 @@ export const createAdmin: RequestHandler<
     const { name, password, email } = req.body;
     if (!name || !password || !email) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -39,7 +40,7 @@ export const createAdmin: RequestHandler<
       .then(async (admin) => {
         if (admin) {
           res.status(StatusCodes.CONFLICT).json({
-            message: 'Admin already exists',
+            message: "Admin already exists",
           });
         } else {
           const admin = new AdminModel({
@@ -51,12 +52,12 @@ export const createAdmin: RequestHandler<
             .encryptPassword(password)
             .then(() => {
               res.status(StatusCodes.CREATED).json({
-                message: 'Admin created successfully',
+                message: "Admin created successfully",
               });
             })
             .catch((error) => {
               res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: 'Something went wrong',
+                message: "Something went wrong",
               });
               console.error(error);
             });
@@ -64,13 +65,13 @@ export const createAdmin: RequestHandler<
       })
       .catch((error) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: 'Something went wrong',
+          message: "Something went wrong",
         });
         console.error(error);
       });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     console.error(error);
   }
@@ -80,9 +81,9 @@ export const getAdmin: RequestHandler<{}, IResponse, IGetUserRequest> = async (
   req,
   res
 ) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -90,7 +91,7 @@ export const getAdmin: RequestHandler<{}, IResponse, IGetUserRequest> = async (
     const { email, password } = req.body;
     if (!email || !password) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -104,36 +105,36 @@ export const getAdmin: RequestHandler<{}, IResponse, IGetUserRequest> = async (
               if (isMatch) {
                 admin.generateAuthToken();
                 res.status(StatusCodes.OK).json({
-                  message: 'Admin logged in successfully',
+                  message: "Admin logged in successfully",
                   admin,
                 });
               } else {
                 res.status(StatusCodes.UNAUTHORIZED).json({
-                  message: 'Incorrect password',
+                  message: "Incorrect password",
                 });
               }
             })
             .catch((error) => {
               res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: 'Something went wrong',
+                message: "Something went wrong",
               });
               console.error(error);
             });
         } else {
           res.status(StatusCodes.NOT_FOUND).json({
-            message: 'Admin not found',
+            message: "Admin not found",
           });
         }
       })
       .catch((error) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: 'Something went wrong',
+          message: "Something went wrong",
         });
         console.error(error);
       });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     console.error(error);
   }
@@ -144,9 +145,9 @@ export const resumeSession: RequestHandler<
   IResponse,
   IResumeSessionRequest
 > = async (req, res) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -154,7 +155,7 @@ export const resumeSession: RequestHandler<
     const { email, token } = req.body;
     if (!email || !token) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -163,7 +164,7 @@ export const resumeSession: RequestHandler<
     });
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Admin not found',
+        message: "Admin not found",
       });
     } else {
       await existingAdmin.verifyAuthToken(token).then((isMatch) => {
@@ -174,14 +175,14 @@ export const resumeSession: RequestHandler<
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'Invalid token',
+            message: "Invalid token",
           });
         }
       });
     }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     console.error(error);
   }
@@ -192,9 +193,9 @@ export const listEnumerators: RequestHandler<
   IResponse,
   IListEnumeratorsRequest
 > = async (req, res) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -202,7 +203,7 @@ export const listEnumerators: RequestHandler<
     const { email, token } = req.body;
     if (!email || !token) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -212,26 +213,26 @@ export const listEnumerators: RequestHandler<
 
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Admin not found',
+        message: "Admin not found",
       });
     } else {
       await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
         if (isMatch) {
           const enumerators = await EnumeratorModel.find({});
           res.status(StatusCodes.OK).json({
-            message: 'Enumerators found',
+            message: "Enumerators found",
             enumerators,
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'Invalid token',
+            message: "Invalid token",
           });
         }
       });
     }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     console.error(error);
   }
@@ -242,9 +243,9 @@ export const toggleEnumeratorStatus: RequestHandler<
   IResponse,
   IToggleEnumeratorStatusRequest
 > = async (req, res) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -252,7 +253,7 @@ export const toggleEnumeratorStatus: RequestHandler<
     const { email, token, enumeratorEmail } = req.body;
     if (!email || !token || !enumeratorEmail) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -261,7 +262,7 @@ export const toggleEnumeratorStatus: RequestHandler<
     });
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Admin not found',
+        message: "Admin not found",
       });
     } else {
       await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
@@ -272,28 +273,28 @@ export const toggleEnumeratorStatus: RequestHandler<
 
           if (!existingEnumerator) {
             res.status(StatusCodes.NOT_FOUND).json({
-              message: 'Enumerator not found',
+              message: "Enumerator not found",
             });
           } else {
             existingEnumerator.isDisabled = !existingEnumerator.isDisabled;
             await existingEnumerator.save();
             res.status(StatusCodes.OK).json({
               message: `Enumerator ${
-                existingEnumerator.isDisabled ? 'disabled' : 'enabled'
+                existingEnumerator.isDisabled ? "disabled" : "enabled"
               } successfully`,
               enumerator: existingEnumerator,
             });
           }
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'Invalid token',
+            message: "Invalid token",
           });
         }
       });
     }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     console.error(error);
   }
@@ -304,9 +305,9 @@ export const listSurveys: RequestHandler<
   IResponse,
   IListSurveysRequest
 > = async (req, res) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -314,7 +315,7 @@ export const listSurveys: RequestHandler<
     const { email, token } = req.body;
     if (!email || !token) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -323,26 +324,26 @@ export const listSurveys: RequestHandler<
     });
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Admin not found',
+        message: "Admin not found",
       });
     } else {
       await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
         if (isMatch) {
           const surveys = await SurveyModel.find({});
           res.status(StatusCodes.OK).json({
-            message: 'Surveys found',
-            surveys: [],
+            message: "Surveys found",
+            surveys,
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'Invalid token',
+            message: "Invalid token",
           });
         }
       });
     }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     console.error(error);
   }
@@ -353,9 +354,9 @@ export const listSurveysBySurveyId: RequestHandler<
   IResponse,
   IListSurveysRequestBySurveyId
 > = async (req, res) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -363,7 +364,7 @@ export const listSurveysBySurveyId: RequestHandler<
     const { surveyId, email, token } = req.body;
     if (!email || !token || !surveyId) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -372,26 +373,26 @@ export const listSurveysBySurveyId: RequestHandler<
     });
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Admin not found',
+        message: "Admin not found",
       });
     } else {
       await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
         if (isMatch) {
           const surveys = await SurveyModel.find({ surveyId });
           res.status(StatusCodes.OK).json({
-            message: 'Surveys found',
+            message: "Surveys found",
             surveys,
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'Invalid token',
+            message: "Invalid token",
           });
         }
       });
     }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
   }
 };
@@ -400,9 +401,9 @@ export const getStats: RequestHandler<{}, IResponse, IGetStatsRequest> = async (
   req,
   res
 ) => {
-  if (JSON.stringify(req.body) === '{}') {
+  if (JSON.stringify(req.body) === "{}") {
     res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Request body is empty',
+      message: "Request body is empty",
     });
     return;
   }
@@ -410,7 +411,7 @@ export const getStats: RequestHandler<{}, IResponse, IGetStatsRequest> = async (
     const { email, token } = req.body;
     if (!email || !token) {
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Missing required fields',
+        message: "Missing required fields",
       });
       return;
     }
@@ -419,7 +420,7 @@ export const getStats: RequestHandler<{}, IResponse, IGetStatsRequest> = async (
     });
     if (!existingAdmin) {
       res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Admin not found',
+        message: "Admin not found",
       });
     } else {
       await existingAdmin.verifyAuthToken(token).then(async (isMatch) => {
@@ -451,7 +452,7 @@ export const getStats: RequestHandler<{}, IResponse, IGetStatsRequest> = async (
           const totalEnumerators = enumerators.length;
 
           res.status(StatusCodes.OK).json({
-            message: 'Stats found',
+            message: "Stats found",
             stats: {
               totalSurveys: surveys.length,
               totalEnumerators,
@@ -466,14 +467,14 @@ export const getStats: RequestHandler<{}, IResponse, IGetStatsRequest> = async (
           });
         } else {
           res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'Invalid token',
+            message: "Invalid token",
           });
         }
       });
     }
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Something went wrong',
+      message: "Something went wrong",
     });
     console.error(error);
   }
